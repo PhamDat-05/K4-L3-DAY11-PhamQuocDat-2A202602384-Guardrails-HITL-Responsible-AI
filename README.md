@@ -134,3 +134,19 @@ pip install -r requirements.txt
 Rồi mở [`CHECKPOINTS.md`](CHECKPOINTS.md) và làm lần lượt Checkpoint 1 → 5.
 
 Nộp theo [`SUBMISSION.md`](SUBMISSION.md) · Quy định: [`RULES.md`](RULES.md).
+
+## Bài làm cá nhân
+
+- Học viên: **Phạm Quốc Đạt** · MSSV: **2A202602384**.
+- Blue: OpenRouter `liquid/lfm-2.5-2.6b`; khi OpenRouter không còn endpoint ở slug gốc, runner thử route `liquid/lfm-2.5-2.6b:free` của cùng model và ghi route thực tế trong `results.json`.
+- Red và Red Advance: Gemini `gemini-3.5-flash`. API key chỉ đặt trong `.env` local; file này được `.gitignore` loại khỏi commit.
+
+Chạy từ gốc repo sau khi cài `requirements.txt` và điền `OPENROUTER_API_KEY`, `GOOGLE_API_KEY` trong `.env`:
+
+```powershell
+.\.venv\Scripts\python.exe src/main.py --part 2
+.\.venv\Scripts\python.exe src/main.py --part 3
+.\.venv\Scripts\python.exe src/main.py --part 4
+.\.venv\Scripts\python.exe -m pytest tests/smoke tests/public -q
+.\.venv\Scripts\python.exe scripts/grade.py --submission-dir . --out outputs/grade_report.json
+```

@@ -62,14 +62,27 @@ class OpenAIRunner:
             return block_msg
 
         client = self._client()
-        completion = client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": agent.instruction},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=self.temperature,
-        )
+        messages = [
+            {"role": "system", "content": agent.instruction},
+            {"role": "user", "content": user_message},
+        ]
+        try:
+            completion = client.chat.completions.create(
+                model=self.model, messages=messages, temperature=self.temperature,
+            )
+        except Exception as exc:
+            from openai import NotFoundError
+            from core.config import BLUE_MODEL
+
+            if (not isinstance(exc, NotFoundError) or self.provider != "openrouter"
+                    or self.model != BLUE_MODEL):
+                raise
+            # OpenRouter can expose the fixed Liquid model only via its free route.
+            # This changes routing, not the underlying Blue model family.
+            self.model = f"{BLUE_MODEL}:free"
+            completion = client.chat.completions.create(
+                model=self.model, messages=messages, temperature=self.temperature,
+            )
         text = (completion.choices[0].message.content or "").strip()
 
         for hook in self.output_hooks:

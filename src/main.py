@@ -19,12 +19,15 @@ import asyncio
 import sys
 from pathlib import Path
 
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 # Cho phép chạy ``python src/main.py`` từ gốc repo
 _SRC_DIR = Path(__file__).resolve().parent
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
-from core.config import setup_api_key
+from core.config import setup_api_key, get_openrouter_api_key, blue_provider_label
 
 
 async def part2_guardrails():
@@ -134,10 +137,15 @@ async def part4_attacks():
 
 
 async def main(parts=None):
-    setup_api_key()
-
     if parts is None:
         parts = [2, 3, 4]  # Core: CP2 → CP3 → CP4
+
+    if 4 in parts:
+        setup_api_key()
+    elif 3 in parts:
+        if not get_openrouter_api_key():
+            raise RuntimeError("CP3 requires OPENROUTER_API_KEY in local .env")
+        print(f"Blue — {blue_provider_label()} [LOCKED]")
 
     for part in parts:
         if part == 2:
